@@ -35,6 +35,16 @@ def fetch_json(symbol, underlying_asset):
         print('Error Establishing connection with NSE')
         raise SystemError(ex)
 
+'''
+Returns Underlying Asset value given Option-chain of that asset in JSON
+'''
+def get_underlying_asset_value(option_chain_data):
+
+    row = option_chain_data.get('records').get('data')[0]
+    if row.get('PE'):
+        return row.get('PE').get('underlyingValue')
+    else:
+        return row.get('CE').get('underlyingValue')
 
 '''
 Fetches (Data Frame) data relevant to desired expiry date from the provided JSON option_chain data consisting of various expiry date based options
@@ -88,7 +98,7 @@ def driver(symbol, underlying_asset):
     ocd = fetch_json(symbol,underlying_asset)
     expiry_dates_available = get_expiry_dates(ocd)
     data = date_filter(ocd, expiry_dates_available[0])
-    print(data)
+    print(get_underlying_asset_value(ocd))
 
 if __name__ == "__main__":
     driver('NIFTY', "nse")
