@@ -100,8 +100,9 @@ def driver(symbol, underlying_asset):
     ocd = fetch_json(symbol,underlying_asset)
     expiry_dates_available = get_expiry_dates(ocd)
     data = date_filter(ocd, expiry_dates_available[0])
-    print(get_underlying_asset_value(ocd))
-    print(data)
+    return (data, get_underlying_asset_value(ocd))
+
+
 
 if __name__ == "__main__":
     driver('NIFTY', "nse")
