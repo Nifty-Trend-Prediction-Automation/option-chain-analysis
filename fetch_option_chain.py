@@ -35,6 +35,16 @@ def fetch_json(symbol, underlying_asset):
         print('Error Establishing connection with NSE')
         raise SystemError(ex)
 
+'''
+Returns Underlying Asset value given Option-chain of that asset in JSON
+'''
+def get_underlying_asset_value(option_chain_data):
+
+    row = option_chain_data.get('records').get('data')[0]
+    if row.get('PE'):
+        return row.get('PE').get('underlyingValue')
+    else:
+        return row.get('CE').get('underlyingValue')
 
 '''
 Fetches (Data Frame) data relevant to desired expiry date from the provided JSON option_chain data consisting of various expiry date based options
@@ -45,8 +55,8 @@ def date_filter(option_chain_data, date):
     Return data format - [Call_OI, Call_change_in_OI, Call_total_traded_vol, StrikePrice, Put_total_traded_vol, Put_change_in_OI, Put_OI]
     '''
     
-    column_names = ['Call_OI', 'Call_change_in_OI','Call_total_traded_vol', 'StrikePrice', 'Put_total_traded_vol', 'Put_change_in_OI', 'Put_OI']
-    empty_contract = [0,0,0]
+    column_names = ['Call_OI', 'Call_change_in_OI','Call_total_traded_vol', 'Call_net_change', 'StrikePrice', 'Put_net_change', 'Put_total_traded_vol', 'Put_change_in_OI', 'Put_OI']
+    empty_contract = [0,0,0,0]
     filtered_data = list()
 
 
@@ -59,6 +69,7 @@ def date_filter(option_chain_data, date):
                 option_row.append(call_row.get('openInterest'))
                 option_row.append(call_row.get('changeinOpenInterest'))
                 option_row.append(call_row.get('totalTradedVolume'))
+                option_row.append(call_row.get('change'))
             else:
                 option_row += empty_contract
             
@@ -66,6 +77,7 @@ def date_filter(option_chain_data, date):
 
             if dict.get('PE'):
                 put_row = dict.get('PE')
+                option_row.append(put_row.get('change'))
                 option_row.append(put_row.get('totalTradedVolume'))
                 option_row.append(put_row.get('changeinOpenInterest'))
                 option_row.append(put_row.get('openInterest'))
@@ -88,10 +100,13 @@ def driver(symbol, underlying_asset):
     ocd = fetch_json(symbol,underlying_asset)
     expiry_dates_available = get_expiry_dates(ocd)
     data = date_filter(ocd, expiry_dates_available[0])
-    print(data)
+    return (data, get_underlying_asset_value(ocd))
+
+
 
 if __name__ == "__main__":
     driver('NIFTY', "nse")
+
 
 
 
