@@ -3,7 +3,7 @@ import requests.exceptions
 import api_details
 
 import pandas
-
+import json
 '''
 Fetches Option chain data from NSEINDIA using official nse API and returns the data in json format
 '''
@@ -29,7 +29,18 @@ def fetch_json(symbol, underlying_asset):
         params = {'symbol': symbol}
         url = api_details.api.get(underlying_asset).get('url')
         method = api_details.api.get(underlying_asset).get('method')
-        return requests.request(method, url, headers=headers, params=params).json()
+        while True:
+            res = requests.request(method, url, headers=headers, params=params)
+            try:
+                # print(res.json())
+                return res.json()
+            except:
+                print(res.status_code)
+        # with open('response_jun26.json') as file:
+        #     data = json.load(file)
+        #     # print(data)
+        #     return  data
+        
 
     except requests.exceptions.ConnectionError as ex:
         print('Error Establishing connection with NSE')
@@ -85,6 +96,7 @@ def date_filter(option_chain_data, date):
             filtered_data.append(option_row)
     
     df = pandas.DataFrame(data=filtered_data, columns=column_names)
+    # df.to_csv('jun26.csv')
     return df
 
 def get_expiry_dates(option_chain_data):
