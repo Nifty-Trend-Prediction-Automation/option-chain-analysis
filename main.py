@@ -58,7 +58,6 @@ def get_supp_num(levels):
         else:
             # WEAKLY BULLISH
             state.append(+0.5)
-
     for i in range(len(levels)):
         
         level = levels[i]
