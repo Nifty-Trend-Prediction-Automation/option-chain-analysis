@@ -1,10 +1,16 @@
 from fetch_option_chain import *
 import pandas as pd
 
-def is_peak(df, i, col1):
-    return ((df[col1][i] > df[col1][i-1])  or (df[col1][i] > df[col1][i+1])) #or (df[col1][i] > df[col1][i-1]) or (df[col1][i]>df[col1][i+1])
+def is_peak(df, i, col):
+    return ((df[col][i] > df[col][i-1])  or (df[col][i] > df[col][i+1])) #or (df[col1][i] > df[col1][i-1]) or (df[col1][i]>df[col1][i+1])
 
-def get_peaks(df, col):
+def get_peaks(df, col1, INTRA_DAY, col2):
+    
+    if INTRA_DAY:
+        col = col1
+    else: 
+        col = col2
+
     peaks = list()
     for i in range(2, df.shape[0]-2):
         if is_peak(df, i, col):
@@ -104,23 +110,23 @@ def get_resis_num(levels):
     return score
 
 
-def fetch_support_resistance_levels(data):
+def fetch_support_resistance_levels(data, date, INTRA_DAY):
     
-    dates = get_expiry_dates(data)
+    # dates = get_expiry_dates(data)
     spotprice = get_underlying_asset_value(data)
-    data = date_filter(data, dates[0])
+    data = date_filter(data, date)
     
-    support_peaks = get_peaks(data, 'Put_OI')
-    resistance_peaks = get_peaks(data, 'Call_OI')
+    support_peaks = get_peaks(data, 'Put_OI', INTRA_DAY, 'Put_change_in_OI')
+    resistance_peaks = get_peaks(data, 'Call_OI', INTRA_DAY, 'Call_change_in_OI')
     support_key_levels  = get_keys(support_peaks, spotprice)
     resistance_key_levels = get_keys(resistance_peaks, spotprice)
     
     return support_key_levels, resistance_key_levels
 
 
-def get_trend(data):
+def get_trend(data, date, INTRA_DAY):
 
-    support_key_levels, resistance_key_levels = fetch_support_resistance_levels(data)
+    support_key_levels, resistance_key_levels = fetch_support_resistance_levels(data, date, INTRA_DAY)
     
     snum = get_supp_num(support_key_levels)
     rnum = get_resis_num(resistance_key_levels)
@@ -135,10 +141,20 @@ def get_trend(data):
 
     return 'The current trend of the market is more likely {}.'.format(trend)
 
-def get_realtime_trend():
+def get_realtime_trend(INTRA_DAY=True):
 
     real_time_data = fetch_json('NIFTY', "nse")
-    print(get_trend(real_time_data))
+    dates = get_expiry_dates(real_time_data)
+
+    if INTRA_DAY:
+        # Intra_Day    
+        trend = get_trend(real_time_data, dates[0], INTRA_DAY)
+    else:
+        # Weekly
+        print('Weekly trend')
+        trend = get_trend(real_time_data, dates[1], INTRA_DAY)
+
+    print(trend)
 
 def test_trend_prediction(json_filename):
 
