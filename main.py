@@ -166,7 +166,7 @@ def test_trend_prediction(json_filename, INTRADAY=True):
         else:
             print(get_trend(data, dates[1], INTRADAY))
     except:
-        print('An ERROR has occured while handling the FILE')
+        print('An ERROR has occurred while handling the FILE')
 
 
 if __name__ == "__main__":

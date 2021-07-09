@@ -97,7 +97,7 @@ def get_expiry_dates(option_chain_data):
     return option_chain_data.get('records').get('expiryDates')
 
 '''
-Main function that initaiates required function calls
+Main function that initiates required function calls
 '''
 def driver(symbol, underlying_asset):
 
