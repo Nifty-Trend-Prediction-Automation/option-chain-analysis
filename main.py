@@ -2,7 +2,7 @@ from fetch_option_chain import *
 import pandas as pd
 
 def is_peak(df, i, col):
-    return ((df[col][i] > df[col][i-1])  or (df[col][i] > df[col][i+1])) #or (df[col1][i] > df[col1][i-1]) or (df[col1][i]>df[col1][i+1])
+    return ((df[col][i] > df[col][i-1])  or (df[col][i] > df[col][i+1]))
 
 def get_peaks(df, col1, INTRA_DAY, col2):
     
@@ -112,10 +112,8 @@ def get_resis_num(levels):
 
 def fetch_support_resistance_levels(data, date, INTRA_DAY):
     
-    # dates = get_expiry_dates(data)
     spotprice = get_underlying_asset_value(data)
     data = date_filter(data, date)
-    
     support_peaks = get_peaks(data, 'Put_OI', INTRA_DAY, 'Put_change_in_OI')
     resistance_peaks = get_peaks(data, 'Call_OI', INTRA_DAY, 'Call_change_in_OI')
     support_key_levels  = get_keys(support_peaks, spotprice)
@@ -139,7 +137,7 @@ def get_trend(data, date, INTRA_DAY):
     else:
         trend = 'Bearish'
 
-    return 'The current trend of the market is more likely {}.'.format(trend)
+    return 'The current trend of the market is more likely {} [{}].'.format(trend, date)
 
 def get_realtime_trend(INTRA_DAY=True):
 
@@ -156,16 +154,21 @@ def get_realtime_trend(INTRA_DAY=True):
 
     print(trend)
 
-def test_trend_prediction(json_filename):
+def test_trend_prediction(json_filename, INTRADAY=True):
 
     import json
     try:
         with open(json_filename) as file:
             data = json.load(file)
-        print(get_trend(data))
+            dates = get_expiry_dates(data)
+        if INTRADAY:
+            print(get_trend(data, dates[0], INTRADAY))
+        else:
+            print(get_trend(data, dates[1], INTRADAY))
     except:
         print('An ERROR has occured while handling the FILE')
 
 
 if __name__ == "__main__":
     get_realtime_trend()
+    # test_trend_prediction('<file_name>.json')

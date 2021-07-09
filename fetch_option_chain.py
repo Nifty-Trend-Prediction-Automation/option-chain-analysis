@@ -1,9 +1,9 @@
 import requests
 import requests.exceptions
 import api_details
-
 import pandas
-import json
+
+
 '''
 Fetches Option chain data from NSEINDIA using official nse API and returns the data in json format
 '''
@@ -91,7 +91,6 @@ def date_filter(option_chain_data, date):
             filtered_data.append(option_row)
     
     df = pandas.DataFrame(data=filtered_data, columns=column_names)
-    # df.to_csv('jun26.csv')
     return df
 
 def get_expiry_dates(option_chain_data):
