@@ -1,8 +1,8 @@
 import requests
 import requests.exceptions
 import api_details
-
 import pandas
+
 
 '''
 Fetches Option chain data from NSEINDIA using official nse API and returns the data in json format
@@ -29,8 +29,12 @@ def fetch_json(symbol, underlying_asset):
         params = {'symbol': symbol}
         url = api_details.api.get(underlying_asset).get('url')
         method = api_details.api.get(underlying_asset).get('method')
-        return requests.request(method, url, headers=headers, params=params).json()
-
+        while True:
+            try:
+                res =  requests.request(method, url, headers=headers, params=params)
+                return res.json()
+            except:
+                print(res.status_code)
     except requests.exceptions.ConnectionError as ex:
         print('Error Establishing connection with NSE')
         raise SystemError(ex)
@@ -93,7 +97,7 @@ def get_expiry_dates(option_chain_data):
     return option_chain_data.get('records').get('expiryDates')
 
 '''
-Main function that initaiates required function calls
+Main function that initiates required function calls
 '''
 def driver(symbol, underlying_asset):
 
@@ -103,12 +107,6 @@ def driver(symbol, underlying_asset):
     return (data, get_underlying_asset_value(ocd))
 
 
-
 if __name__ == "__main__":
     driver('NIFTY', "nse")
-
-
-
-
-
 
