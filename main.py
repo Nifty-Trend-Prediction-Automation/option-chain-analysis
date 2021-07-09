@@ -164,7 +164,7 @@ def test_trend_prediction(json_filename):
             data = json.load(file)
         print(get_trend(data))
     except:
-        print('An ERROR has occured while handling the FILE')
+        print('An ERROR has occurred while handling the FILE')
 
 
 if __name__ == "__main__":
